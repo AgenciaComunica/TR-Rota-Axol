@@ -2,6 +2,7 @@ export type AuthMode = 'online' | 'offline-cache' | 'demo';
 
 export interface AuthSession {
   username: string;
+  email: string;
   authenticatedAt: string;
   mode: AuthMode;
 }
@@ -17,6 +18,20 @@ const CACHE_STORAGE_KEY = 'tr-rota:auth-cache';
 const DEMO_USERNAME = 'tecnico';
 const DEMO_EMAIL = 'tecnico@trrota.local';
 const DEMO_PASSWORD = 'trrota123';
+
+function resolveUserEmail(username: string) {
+  const normalizedUsername = username.trim().toLowerCase();
+
+  if (normalizedUsername.includes('@')) {
+    return normalizedUsername;
+  }
+
+  if (normalizedUsername === DEMO_USERNAME) {
+    return DEMO_EMAIL;
+  }
+
+  return `${normalizedUsername}@trrota.local`;
+}
 
 function readJson<T>(key: string): T | null {
   const raw = localStorage.getItem(key);
@@ -59,6 +74,7 @@ async function cacheCredentials(username: string, password: string) {
 function saveSession(username: string, mode: AuthMode) {
   const session: AuthSession = {
     username,
+    email: resolveUserEmail(username),
     authenticatedAt: new Date().toISOString(),
     mode,
   };
@@ -102,7 +118,22 @@ async function validateWithDemoCredentials(username: string, password: string) {
 }
 
 export function getSession() {
-  return readJson<AuthSession>(SESSION_STORAGE_KEY);
+  const session = readJson<AuthSession | (Omit<AuthSession, 'email'> & { email?: string })>(SESSION_STORAGE_KEY);
+
+  if (!session) {
+    return null;
+  }
+
+  if (!session.email) {
+    const migratedSession: AuthSession = {
+      ...session,
+      email: resolveUserEmail(session.username),
+    };
+    writeJson(SESSION_STORAGE_KEY, migratedSession);
+    return migratedSession;
+  }
+
+  return session as AuthSession;
 }
 
 export function isAuthenticated() {
@@ -117,7 +148,7 @@ export async function login(username: string, password: string) {
   const trimmedUsername = username.trim();
 
   if (!trimmedUsername || !password) {
-    throw new Error('Informe email ou usuario e senha.');
+    throw new Error('Informe email ou usuário e senha.');
   }
 
   if (navigator.onLine) {
@@ -129,7 +160,8 @@ export async function login(username: string, password: string) {
     }
 
     if (apiResult === false) {
-      throw new Error('Credenciais invalidas.');
+      throw new Error('Credenciais inválidas.');
+      
     }
 
     const demoResult = await validateWithDemoCredentials(trimmedUsername, password);
@@ -139,20 +171,66 @@ export async function login(username: string, password: string) {
       return saveSession(trimmedUsername, 'demo');
     }
 
-    throw new Error('Credenciais invalidas.');
+    throw new Error('Credenciais inválidas.');
   }
 
   const cache = readJson<CachedCredentials>(CACHE_STORAGE_KEY);
 
   if (!cache || cache.username !== trimmedUsername) {
-    throw new Error('Sem conexao e sem credenciais em cache para este usuario.');
+    throw new Error('Sem conexão e sem credenciais em cache para este usuário.');
   }
 
   const passwordHash = await hashPassword(password);
 
   if (cache.passwordHash !== passwordHash) {
-    throw new Error('Credenciais invalidas para acesso offline.');
+    throw new Error('Credenciais inválidas para acesso offline.');
   }
 
   return saveSession(trimmedUsername, 'offline-cache');
+}
+
+export async function resetPassword(password: string, confirmation: string) {
+  const session = getSession();
+
+  if (!session) {
+    throw new Error('Sessão indisponível.');
+  }
+
+  if (!navigator.onLine) {
+    throw new Error('A redefinição de senha exige conexão com a internet.');
+  }
+
+  if (!password || !confirmation) {
+    throw new Error('Informe a nova senha e a confirmação.');
+  }
+
+  if (password.length < 6) {
+    throw new Error('A nova senha deve ter pelo menos 6 caracteres.');
+  }
+
+  if (password !== confirmation) {
+    throw new Error('Senha e confirmação precisam ser iguais.');
+  }
+
+  const endpoint = import.meta.env.VITE_RESET_PASSWORD_API_URL;
+
+  if (endpoint) {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: session.username,
+        email: session.email,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Não foi possível redefinir a senha.');
+    }
+  }
+
+  await cacheCredentials(session.username, password);
 }

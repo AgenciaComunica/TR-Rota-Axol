@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import LoginPage from '../views/LoginPage.vue';
+import MenuActionPage from '../views/MenuActionPage.vue';
+import ResetPasswordPage from '../views/ResetPasswordPage.vue';
+import UserProfilePage from '../views/UserProfilePage.vue';
 import { isAuthenticated } from '@/services/auth';
 
 const routes: Array<RouteRecordRaw> = [
@@ -18,6 +21,30 @@ const routes: Array<RouteRecordRaw> = [
     path: '/home',
     name: 'Home',
     component: HomePage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/menu/:action',
+    name: 'MenuAction',
+    component: MenuActionPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: UserProfilePage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile/reset-password',
+    name: 'ResetPassword',
+    component: ResetPasswordPage,
     meta: {
       requiresAuth: true,
     },

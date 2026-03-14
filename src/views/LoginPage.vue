@@ -13,10 +13,8 @@
           <div v-else class="brand-fallback" aria-hidden="true">TR</div>
 
           <div class="card-head">
-            <div>
-              <p class="eyebrow">TR-Rota</p>
-              <h1>Acesso ao sistema</h1>
-            </div>
+            <h1>TR-Rota</h1>
+            <p class="card-subtitle">Acesso ao sistema</p>
             <span :class="['status-badge', isOnline ? 'online' : 'offline']">
               {{ isOnline ? 'Online' : 'Offline' }}
             </span>
@@ -24,14 +22,14 @@
 
           <form class="login-form" @submit.prevent="handleSubmit">
             <label class="field">
-              <span>Email ou usuario</span>
+              <span>Email ou usuário</span>
               <ion-input
                 v-model="form.username"
-                aria-label="Email ou usuario"
+                aria-label="Email ou usuário"
                 autocomplete="username"
                 fill="outline"
                 inputmode="email"
-                placeholder="seu.email@empresa.com ou usuario"
+                placeholder="seu.email@empresa.com ou usuário"
               />
             </label>
 
@@ -178,14 +176,14 @@ onUnmounted(() => {
 
 .brand-logo {
   display: block;
-  width: min(100%, 220px);
-  max-height: 104px;
-  margin: 0 auto 24px;
+  width: min(100%, 248px);
+  max-height: 118px;
+  margin: 0 auto 18px;
   object-fit: contain;
 }
 
 .brand-fallback {
-  margin: 0 auto 24px;
+  margin: 0 auto 18px;
   color: #335f8d;
   font-size: 2rem;
   font-weight: 800;
@@ -195,24 +193,25 @@ onUnmounted(() => {
 
 .card-head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  color: #5b748c;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  width: 100%;
 }
 
 .card-head h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 2.05rem;
+  width: 100%;
+  text-align: center;
   color: #223548;
+}
+
+.card-subtitle {
+  margin: 0;
+  color: #6c7c8b;
+  font-size: 0.94rem;
 }
 
 .status-badge {
@@ -225,6 +224,7 @@ onUnmounted(() => {
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  margin-top: 4px;
 }
 
 .status-badge.online {

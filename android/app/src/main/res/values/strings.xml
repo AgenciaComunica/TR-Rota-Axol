@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">TR Rota Axol</string>
-    <string name="title_activity_main">TR Rota Axol</string>
+    <string name="app_name">TR-Rota</string>
+    <string name="title_activity_main">TR-Rota</string>
     <string name="package_name">com.axol.trrota</string>
     <string name="custom_url_scheme">com.axol.trrota</string>
 </resources>
