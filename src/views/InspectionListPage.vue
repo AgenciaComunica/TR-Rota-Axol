@@ -22,19 +22,30 @@
         <template v-else>
           <div class="section-head">
             <h2>Selecione um transformador</h2>
-            <span>{{ transformers.length }}</span>
+            <span>{{ filteredTransformers.length }}</span>
+          </div>
+
+          <ion-searchbar
+            v-model="searchTerm"
+            class="filter-searchbar"
+            placeholder="Filtrar por série, local ou tag"
+          />
+
+          <div v-if="filteredTransformers.length === 0" class="empty-card">
+            <strong>Nenhum transformador encontrado</strong>
+            <p>Revise o filtro informado para localizar o equipamento desejado.</p>
           </div>
 
           <button
-            v-for="transformer in transformers"
+            v-for="transformer in filteredTransformers"
             :key="transformer.id"
             class="transformer-card"
             type="button"
             @click="openInspection(transformer.id)"
           >
             <strong>{{ transformer.code }}</strong>
-            <span>{{ transformer.substation }}</span>
-            <p>{{ transformer.feeder }} · {{ transformer.city }}</p>
+            <span>Série {{ transformer.serialNumber }}</span>
+            <p>{{ transformer.substation }} · {{ transformer.city }}</p>
           </button>
         </template>
       </section>
@@ -43,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonBackButton,
@@ -52,13 +63,16 @@ import {
   IonContent,
   IonHeader,
   IonPage,
+  IonSearchbar,
   IonTitle,
   IonToolbar,
 } from '@ionic/vue';
-import { getSynchronizedTransformers } from '@/services/transformers';
+import { filterTransformers, getSynchronizedTransformers } from '@/services/transformers';
 
 const router = useRouter();
 const transformers = ref(getSynchronizedTransformers());
+const searchTerm = ref('');
+const filteredTransformers = computed(() => filterTransformers(transformers.value, searchTerm.value));
 
 async function goToSync() {
   await router.push('/menu/sync-transformers');
@@ -103,6 +117,15 @@ async function openInspection(id: string) {
   color: #6c7c8b;
   font-size: 0.88rem;
   font-weight: 700;
+}
+
+.filter-searchbar {
+  margin-bottom: 14px;
+  --background: rgba(255, 255, 255, 0.94);
+  --border-radius: 18px;
+  --box-shadow: 0 10px 24px rgba(73, 97, 124, 0.06);
+  --color: #223548;
+  --placeholder-color: #738191;
 }
 
 .empty-card,

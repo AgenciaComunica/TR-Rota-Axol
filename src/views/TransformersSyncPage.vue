@@ -21,7 +21,7 @@
             {{ isOnline ? 'Online' : 'Offline' }}
           </span>
           <span class="status-badge status-badge--neutral">
-            Em Rede: {{ availableCount ?? 0 }}
+            Disponíveis: {{ availableCount ?? 0 }}
           </span>
           <span class="status-badge status-badge--neutral">
             Sincronizados: {{ transformers.length }}
@@ -35,23 +35,33 @@
         <section class="list-section">
           <div class="section-head">
             <h2>Transformadores sincronizados</h2>
-            <span>{{ transformers.length }}</span>
+            <span>{{ filteredTransformers.length }}</span>
           </div>
+
+          <ion-searchbar
+            v-model="searchTerm"
+            class="filter-searchbar"
+            placeholder="Filtrar por série, local ou tag"
+          />
 
           <div v-if="transformers.length === 0" class="empty-card">
             Nenhum transformador sincronizado no dispositivo.
           </div>
 
+          <div v-else-if="filteredTransformers.length === 0" class="empty-card">
+            Nenhum transformador encontrado com o filtro informado.
+          </div>
+
           <button
-            v-for="transformer in transformers"
+            v-for="transformer in filteredTransformers"
             :key="transformer.id"
             class="transformer-card"
             type="button"
             @click="openInspection(transformer.id)"
           >
             <strong>{{ transformer.code }}</strong>
-            <span>{{ transformer.substation }}</span>
-            <p>{{ transformer.feeder }} · {{ transformer.voltageClass }}</p>
+            <span>Série {{ transformer.serialNumber }}</span>
+            <p>{{ transformer.substation }} · {{ transformer.city }}</p>
           </button>
         </section>
       </section>
@@ -60,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonBackButton,
@@ -70,11 +80,17 @@ import {
   IonHeader,
   IonIcon,
   IonPage,
+  IonSearchbar,
   IonTitle,
   IonToolbar,
 } from '@ionic/vue';
 import { downloadOutline } from 'ionicons/icons';
-import { fetchAvailableTransformers, getSynchronizedTransformers, synchronizeTransformers } from '@/services/transformers';
+import {
+  fetchAvailableTransformers,
+  filterTransformers,
+  getSynchronizedTransformers,
+  synchronizeTransformers,
+} from '@/services/transformers';
 
 interface FeedbackMessage {
   text: string;
@@ -87,6 +103,8 @@ const isSubmitting = ref(false);
 const isOnline = ref(navigator.onLine);
 const message = ref<FeedbackMessage | null>(null);
 const availableCount = ref<number | null>(null);
+const searchTerm = ref('');
+const filteredTransformers = computed(() => filterTransformers(transformers.value, searchTerm.value));
 
 function updateConnectivityStatus() {
   isOnline.value = navigator.onLine;
@@ -223,6 +241,15 @@ onUnmounted(() => {
 
 .list-section {
   margin-top: 24px;
+}
+
+.filter-searchbar {
+  margin-bottom: 14px;
+  --background: rgba(255, 255, 255, 0.94);
+  --border-radius: 18px;
+  --box-shadow: 0 10px 24px rgba(73, 97, 124, 0.06);
+  --color: #223548;
+  --placeholder-color: #738191;
 }
 
 .section-head {

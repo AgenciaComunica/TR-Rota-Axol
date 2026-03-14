@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import InspectionListPage from '../views/InspectionListPage.vue';
+import InspectionSyncPage from '../views/InspectionSyncPage.vue';
 import InspectionStartPage from '../views/InspectionStartPage.vue';
 import LoginPage from '../views/LoginPage.vue';
 import MenuActionPage from '../views/MenuActionPage.vue';
@@ -40,6 +41,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/menu/inspection',
     name: 'InspectionList',
     component: InspectionListPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/menu/sync-inspections',
+    name: 'InspectionSync',
+    component: InspectionSyncPage,
     meta: {
       requiresAuth: true,
     },

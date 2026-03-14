@@ -84,6 +84,28 @@ export function getTransformerById(id: string) {
   return getSynchronizedTransformers().find((item) => item.id === id) ?? null;
 }
 
+export function filterTransformers(records: TransformerRecord[], query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (!normalizedQuery) {
+    return records;
+  }
+
+  return records.filter((record) => {
+    const haystack = [
+      record.code,
+      record.serialNumber,
+      record.substation,
+      record.feeder,
+      record.city,
+    ]
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(normalizedQuery);
+  });
+}
+
 export async function fetchAvailableTransformers() {
   const endpoint = import.meta.env.VITE_TRANSFORMERS_API_URL;
 
