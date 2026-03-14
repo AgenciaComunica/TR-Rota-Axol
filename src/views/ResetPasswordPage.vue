@@ -46,11 +46,21 @@
             {{ message.text }}
           </p>
 
-          <ion-button class="submit-button" expand="block" size="large" type="submit" :disabled="isSubmitting || !isOnline">
-            {{ isSubmitting ? 'Atualizando...' : 'Salvar nova senha' }}
-          </ion-button>
+          <div class="submit-button-wrap" @click="handleSubmitTap">
+            <ion-button class="submit-button" expand="block" size="large" type="submit" :disabled="isSubmitting || !isOnline">
+              {{ isSubmitting ? 'Atualizando...' : 'Salvar nova senha' }}
+            </ion-button>
+          </div>
         </form>
       </section>
+
+      <ion-toast
+        :is-open="showOfflineToast"
+        message="Para redefinir a senha, conecte-se à rede."
+        duration="2200"
+        position="top"
+        @didDismiss="showOfflineToast = false"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -66,6 +76,7 @@ import {
   IonHeader,
   IonInput,
   IonPage,
+  IonToast,
   IonTitle,
   IonToolbar,
 } from '@ionic/vue';
@@ -82,6 +93,7 @@ const session = ref(getSession());
 const isOnline = useNetworkStatus();
 const isSubmitting = ref(false);
 const message = ref<FeedbackMessage | null>(null);
+const showOfflineToast = ref(false);
 const form = reactive({
   password: '',
   confirmation: '',
@@ -109,6 +121,12 @@ async function handleSubmit() {
     };
   } finally {
     isSubmitting.value = false;
+  }
+}
+
+function handleSubmitTap() {
+  if (!isOnline.value && !isSubmitting.value) {
+    showOfflineToast.value = true;
   }
 }
 </script>
@@ -192,6 +210,10 @@ async function handleSubmit() {
   --border-radius: 20px;
   min-height: 62px;
   font-weight: 700;
+}
+
+.submit-button-wrap {
+  width: 100%;
 }
 
 .feedback {

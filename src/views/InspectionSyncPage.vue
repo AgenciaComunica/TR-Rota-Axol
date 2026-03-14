@@ -11,10 +11,12 @@
 
     <ion-content :fullscreen="true" class="sync-content">
       <section class="sync-shell">
-        <ion-button class="sync-button" expand="block" size="large" :disabled="isSubmitting || !isOnline" @click="handleSync">
-          <ion-icon slot="start" :icon="cloudUploadOutline" aria-hidden="true" />
-          {{ isSubmitting ? 'Sincronizando...' : 'Sincronizar agora' }}
-        </ion-button>
+        <div class="sync-button-wrap" @click="handleSyncTap">
+          <ion-button class="sync-button" expand="block" size="large" :disabled="isSubmitting || !isOnline" @click="handleSync">
+            <ion-icon slot="start" :icon="cloudUploadOutline" aria-hidden="true" />
+            {{ isSubmitting ? 'Sincronizando...' : 'Sincronizar agora' }}
+          </ion-button>
+        </div>
 
         <div class="status-row">
           <span :class="['status-badge', isOnline ? 'status-badge--online' : 'status-badge--offline']">
@@ -99,6 +101,14 @@
         css-class="sync-confirm-alert"
         @didDismiss="showSyncAlert = false"
       />
+
+      <ion-toast
+        :is-open="showOfflineToast"
+        message="Para sincronizar, conecte-se à rede."
+        duration="2200"
+        position="top"
+        @didDismiss="showOfflineToast = false"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -116,6 +126,7 @@ import {
   IonPage,
   IonAlert,
   IonSearchbar,
+  IonToast,
   IonTitle,
   IonToolbar,
 } from '@ionic/vue';
@@ -136,6 +147,7 @@ const isSubmitting = ref(false);
 const isOnline = useNetworkStatus();
 const message = ref<FeedbackMessage | null>(null);
 const showSyncAlert = ref(false);
+const showOfflineToast = ref(false);
 const selectedFilter = ref<InspectionFilter>('all');
 const searchTerm = ref('');
 const filterOptions = [
@@ -192,6 +204,12 @@ function handleSync() {
   }
 
   showSyncAlert.value = true;
+}
+
+function handleSyncTap() {
+  if (!isOnline.value && !isSubmitting.value) {
+    showOfflineToast.value = true;
+  }
 }
 
 async function handleEdit(inspectionId: string) {
@@ -269,6 +287,10 @@ function formatDate(value: string) {
   --border-radius: 22px;
   min-height: 72px;
   font-weight: 700;
+}
+
+.sync-button-wrap {
+  width: 100%;
 }
 
 .status-row {
