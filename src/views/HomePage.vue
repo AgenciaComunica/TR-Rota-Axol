@@ -84,6 +84,11 @@ function updateConnectivityStatus() {
 }
 
 async function goTo(action: 'sync-transformers' | 'sync-inspections' | 'inspection') {
+  if (action === 'inspection') {
+    await router.push('/menu/inspection');
+    return;
+  }
+
   await router.push(`/menu/${action}`);
 }
 

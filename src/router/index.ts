@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
+import InspectionListPage from '../views/InspectionListPage.vue';
+import InspectionStartPage from '../views/InspectionStartPage.vue';
 import LoginPage from '../views/LoginPage.vue';
 import MenuActionPage from '../views/MenuActionPage.vue';
 import ResetPasswordPage from '../views/ResetPasswordPage.vue';
+import TransformersSyncPage from '../views/TransformersSyncPage.vue';
 import UserProfilePage from '../views/UserProfilePage.vue';
 import { isAuthenticated } from '@/services/auth';
 
@@ -21,6 +24,30 @@ const routes: Array<RouteRecordRaw> = [
     path: '/home',
     name: 'Home',
     component: HomePage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/menu/sync-transformers',
+    name: 'TransformersSync',
+    component: TransformersSyncPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/menu/inspection',
+    name: 'InspectionList',
+    component: InspectionListPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/inspection/:id',
+    name: 'InspectionStart',
+    component: InspectionStartPage,
     meta: {
       requiresAuth: true,
     },
