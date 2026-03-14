@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonBackButton,
@@ -121,6 +121,7 @@ import {
 } from '@ionic/vue';
 import { cloudUploadOutline } from 'ionicons/icons';
 import { deleteInspection, getStoredInspections, synchronizeInspections } from '@/services/inspections';
+import { useNetworkStatus } from '@/services/network';
 
 interface FeedbackMessage {
   text: string;
@@ -132,7 +133,7 @@ type InspectionFilter = 'all' | 'pending' | 'synced';
 const router = useRouter();
 const inspections = ref(getStoredInspections());
 const isSubmitting = ref(false);
-const isOnline = ref(navigator.onLine);
+const isOnline = useNetworkStatus();
 const message = ref<FeedbackMessage | null>(null);
 const showSyncAlert = ref(false);
 const selectedFilter = ref<InspectionFilter>('all');
@@ -164,10 +165,6 @@ const filteredInspections = computed(() => {
     return searchBase.includes(normalizedQuery);
   });
 });
-
-function updateConnectivityStatus() {
-  isOnline.value = navigator.onLine;
-}
 
 async function performSync() {
   message.value = null;
@@ -247,16 +244,6 @@ function formatDate(value: string) {
     timeStyle: 'short',
   }).format(new Date(value));
 }
-
-onMounted(() => {
-  window.addEventListener('online', updateConnectivityStatus);
-  window.addEventListener('offline', updateConnectivityStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateConnectivityStatus);
-  window.removeEventListener('offline', updateConnectivityStatus);
-});
 </script>
 
 <style scoped>
@@ -309,8 +296,8 @@ onUnmounted(() => {
 }
 
 .status-badge--offline {
-  background: rgba(107, 123, 139, 0.14);
-  color: #5f6f7e;
+  background: rgba(207, 86, 86, 0.12);
+  color: #b04343;
 }
 
 .status-badge--neutral {

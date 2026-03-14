@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonBackButton,
@@ -85,6 +85,7 @@ import {
   IonToolbar,
 } from '@ionic/vue';
 import { downloadOutline } from 'ionicons/icons';
+import { hasNetworkConnection, useNetworkStatus } from '@/services/network';
 import {
   fetchAvailableTransformers,
   filterTransformers,
@@ -100,18 +101,14 @@ interface FeedbackMessage {
 const router = useRouter();
 const transformers = ref(getSynchronizedTransformers());
 const isSubmitting = ref(false);
-const isOnline = ref(navigator.onLine);
+const isOnline = useNetworkStatus();
 const message = ref<FeedbackMessage | null>(null);
 const availableCount = ref<number | null>(null);
 const searchTerm = ref('');
 const filteredTransformers = computed(() => filterTransformers(transformers.value, searchTerm.value));
 
-function updateConnectivityStatus() {
-  isOnline.value = navigator.onLine;
-}
-
 async function loadAvailableCount() {
-  if (!navigator.onLine) {
+  if (!(await hasNetworkConnection())) {
     availableCount.value = null;
     return;
   }
@@ -151,13 +148,6 @@ async function openInspection(id: string) {
 
 onMounted(() => {
   void loadAvailableCount();
-  window.addEventListener('online', updateConnectivityStatus);
-  window.addEventListener('offline', updateConnectivityStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateConnectivityStatus);
-  window.removeEventListener('offline', updateConnectivityStatus);
 });
 </script>
 
@@ -211,8 +201,8 @@ onUnmounted(() => {
 }
 
 .status-badge--offline {
-  background: rgba(107, 123, 139, 0.14);
-  color: #5f6f7e;
+  background: rgba(207, 86, 86, 0.12);
+  color: #b04343;
 }
 
 .status-badge--neutral {

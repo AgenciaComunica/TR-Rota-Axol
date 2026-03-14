@@ -83,10 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { IonButton, IonContent, IonInput, IonPage } from '@ionic/vue';
 import { login } from '@/services/auth';
+import { useNetworkStatus } from '@/services/network';
 
 interface FeedbackMessage {
   text: string;
@@ -99,15 +100,11 @@ const form = reactive({
   password: '',
 });
 const isSubmitting = ref(false);
-const isOnline = ref(navigator.onLine);
+const isOnline = useNetworkStatus();
 const message = ref<FeedbackMessage | null>(null);
 const hasApiUrl = computed(() => Boolean(import.meta.env.VITE_AUTH_API_URL));
 const hasLogo = ref(true);
 const logoSrc = '/branding/logo_siaro.png';
-
-function updateConnectivityStatus() {
-  isOnline.value = navigator.onLine;
-}
 
 function handleLogoError() {
   hasLogo.value = false;
@@ -138,16 +135,6 @@ async function handleSubmit() {
     isSubmitting.value = false;
   }
 }
-
-onMounted(() => {
-  window.addEventListener('online', updateConnectivityStatus);
-  window.addEventListener('offline', updateConnectivityStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateConnectivityStatus);
-  window.removeEventListener('offline', updateConnectivityStatus);
-});
 </script>
 
 <style scoped>
@@ -233,8 +220,8 @@ onUnmounted(() => {
 }
 
 .status-badge.offline {
-  background: rgba(131, 145, 159, 0.12);
-  color: #5f6f7e;
+  background: rgba(207, 86, 86, 0.12);
+  color: #b04343;
 }
 
 .login-form {

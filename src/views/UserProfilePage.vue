@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonBackButton,
@@ -61,14 +61,11 @@ import {
   IonToolbar,
 } from '@ionic/vue';
 import { getSession } from '@/services/auth';
+import { useNetworkStatus } from '@/services/network';
 
 const router = useRouter();
 const session = ref(getSession());
-const isOnline = ref(navigator.onLine);
-
-function updateConnectivityStatus() {
-  isOnline.value = navigator.onLine;
-}
+const isOnline = useNetworkStatus();
 
 async function goToResetPassword() {
   if (!isOnline.value) {
@@ -77,16 +74,6 @@ async function goToResetPassword() {
 
   await router.push('/profile/reset-password');
 }
-
-onMounted(() => {
-  window.addEventListener('online', updateConnectivityStatus);
-  window.addEventListener('offline', updateConnectivityStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateConnectivityStatus);
-  window.removeEventListener('offline', updateConnectivityStatus);
-});
 </script>
 
 <style scoped>

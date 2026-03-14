@@ -1,3 +1,5 @@
+import { hasNetworkConnection } from './network';
+
 export interface TransformerRecord {
   id: string;
   code: string;
@@ -124,7 +126,7 @@ export async function fetchAvailableTransformers() {
 }
 
 export async function synchronizeTransformers() {
-  if (!navigator.onLine) {
+  if (!(await hasNetworkConnection())) {
     throw new Error('Conecte-se à internet para sincronizar os transformadores.');
   }
 

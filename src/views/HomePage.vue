@@ -69,19 +69,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { IonContent, IonHeader, IonIcon, IonPage, IonToolbar } from '@ionic/vue';
 import { cloudUploadOutline, documentTextOutline, downloadOutline, logOutOutline } from 'ionicons/icons';
 import { getSession, logout } from '@/services/auth';
+import { useNetworkStatus } from '@/services/network';
 
 const router = useRouter();
 const session = ref(getSession());
-const isOnline = ref(navigator.onLine);
-
-function updateConnectivityStatus() {
-  isOnline.value = navigator.onLine;
-}
+const isOnline = useNetworkStatus();
 
 async function goTo(action: 'sync-transformers' | 'sync-inspections' | 'inspection') {
   if (action === 'inspection') {
@@ -100,16 +97,6 @@ async function handleLogout() {
   logout();
   await router.replace('/login');
 }
-
-onMounted(() => {
-  window.addEventListener('online', updateConnectivityStatus);
-  window.addEventListener('offline', updateConnectivityStatus);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateConnectivityStatus);
-  window.removeEventListener('offline', updateConnectivityStatus);
-});
 </script>
 
 <style scoped>
@@ -127,8 +114,8 @@ onUnmounted(() => {
 }
 
 .header-logo {
-  width: 38px;
-  height: 38px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   flex: 0 0 auto;
 }
@@ -139,8 +126,8 @@ onUnmounted(() => {
   right: 16px;
   transform: translateY(-50%);
   color: #223548;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 500;
   letter-spacing: 0.01em;
 }
 
@@ -174,6 +161,7 @@ onUnmounted(() => {
   cursor: pointer;
   appearance: none;
 }
+
 
 .menu-card--session {
   justify-content: flex-start;
@@ -267,7 +255,7 @@ onUnmounted(() => {
 
 .status-chip--offline {
   background: rgba(255, 255, 255, 0.18);
-  color: #f6f8fb;
+  color: #ffd4d4;
 }
 
 @media (max-width: 520px) {

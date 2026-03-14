@@ -1,3 +1,5 @@
+import { hasNetworkConnection } from './network';
+
 export interface InspectionFormRecord {
   id: string;
   transformerId: string;
@@ -115,7 +117,7 @@ export function getSynchronizedInspectionsCount() {
 }
 
 export async function synchronizeInspections() {
-  if (!navigator.onLine) {
+  if (!(await hasNetworkConnection())) {
     throw new Error('Conecte-se à internet para sincronizar as inspeções.');
   }
 

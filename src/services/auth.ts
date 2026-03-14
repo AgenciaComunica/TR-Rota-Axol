@@ -1,3 +1,5 @@
+import { hasNetworkConnection } from './network';
+
 export type AuthMode = 'online' | 'offline-cache' | 'demo';
 
 export interface AuthSession {
@@ -146,12 +148,13 @@ export function logout() {
 
 export async function login(username: string, password: string) {
   const trimmedUsername = username.trim();
+  const isOnline = await hasNetworkConnection();
 
   if (!trimmedUsername || !password) {
     throw new Error('Informe email ou usuário e senha.');
   }
 
-  if (navigator.onLine) {
+  if (isOnline) {
     const apiResult = await validateWithApi(trimmedUsername, password);
 
     if (apiResult === true) {
@@ -191,12 +194,13 @@ export async function login(username: string, password: string) {
 
 export async function resetPassword(password: string, confirmation: string) {
   const session = getSession();
+  const isOnline = await hasNetworkConnection();
 
   if (!session) {
     throw new Error('Sessão indisponível.');
   }
 
-  if (!navigator.onLine) {
+  if (!isOnline) {
     throw new Error('A redefinição de senha exige conexão com a internet.');
   }
 

@@ -70,6 +70,7 @@ import {
   IonToolbar,
 } from '@ionic/vue';
 import { getSession, resetPassword } from '@/services/auth';
+import { useNetworkStatus } from '@/services/network';
 
 interface FeedbackMessage {
   text: string;
@@ -78,7 +79,7 @@ interface FeedbackMessage {
 
 const router = useRouter();
 const session = ref(getSession());
-const isOnline = ref(navigator.onLine);
+const isOnline = useNetworkStatus();
 const isSubmitting = ref(false);
 const message = ref<FeedbackMessage | null>(null);
 const form = reactive({
